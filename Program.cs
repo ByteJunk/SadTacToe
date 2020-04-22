@@ -31,6 +31,11 @@ namespace SadTacToe
         private static Console gameConsole;
 
         /// <summary>
+        /// O ecrã onde vamos mostrar os resultados.
+        /// </summary>
+        private static Console scoreBoard;
+
+        /// <summary>
         /// Variável de controlo, se True, é a vez do jogador1, que é o X
         /// </summary>
         private static Boolean jogador1;
@@ -48,7 +53,7 @@ namespace SadTacToe
         /// <summary>
         /// Quantos jogos o jogador 2 já ganhou.
         /// </summary>
-        private static int pontosJogador2 = 1;
+        private static int pontosJogador2 = 0;
 
         /// <summary>
         /// Largura da janela principal, em colunas.
@@ -106,22 +111,34 @@ namespace SadTacToe
         /// </summary>
         static void Init()
         {
+            // Preparar umm tipo de letra mais giro (quadrangular) e GRANDE!
+            var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
+            var fontVezes1 = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
+            var fontVezes4 = fontMaster.GetFont(SadConsole.Font.FontSizes.Four);
+
             // Criar uma consola "mãe", que vai ser o nosso ecrã
             var console = new Console(Width, Height);
+            console.Font = fontVezes1;
             SadConsole.Global.CurrentScreen = console;
+
+
+
 
             for(int i = 0; i < Width; i+=10)
             {
                 console.Print(i, Height - 1, "0123456789");
             }
-            // Preparar umm tipo de letra mais giro (quadrangular) e GRANDE!
-            var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
-            var fontVezes4 = fontMaster.GetFont(SadConsole.Font.FontSizes.Four);
 
             // Preparar a consola que contém o nosso tabuleiro
             gameConsole = new Console(7, 7);
             gameConsole.Font = fontVezes4;
             console.Children.Add(gameConsole);
+
+            // Preparar a consola onde vamos mostrar os resultados
+            scoreBoard = new Console(12, Height);
+            scoreBoard.Position = new Point(28, 0);
+            scoreBoard.Font = fontVezes1;
+            console.Children.Add(scoreBoard);
 
             // Limpar todas as jogadas. O primeiro elemento é o canto superior esquerdo
             // do quadrado de jogo, e o último o canto inferior direito.
@@ -186,6 +203,15 @@ namespace SadTacToe
             gameConsole.SetGlyph(6, 6, 188);
             for (int i = 1; i < 6; i++) gameConsole.SetGlyph(0, i, 186);
             for (int i = 1; i < 6; i++) gameConsole.SetGlyph(6, i, 186);
+            // Atualizar o ecrã com o marcador
+            scoreBoard.Print(1, 1, "SadTacToe");
+            for (int i = 0; i < 11; i++) scoreBoard.SetGlyph(i, 2, 210);
+            scoreBoard.Print(1, 4, "Jogador 1");
+            scoreBoard.Print(4, 6, "VS.");
+            scoreBoard.Print(1, 8, "Jogador 2");
+            scoreBoard.Print(4 - pontosJogador1.ToString().Length, 10, pontosJogador1.ToString());
+            scoreBoard.Print(5, 10, "-");
+            scoreBoard.Print(7, 10, pontosJogador2.ToString());
         }
 
         /// <summary>
