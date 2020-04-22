@@ -9,3 +9,8 @@ Não existem neste momento binários disponíveis. Deve ser corrido o seguinte c
 ```console
 dotnet run
 ```
+
+Para compilar um executável, correr algo como:
+```console
+dotnet publish -c Release -p:PublishSingleFile=true -p:PublishTrimmed=true -r win-x64
+```
