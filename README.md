@@ -1,3 +1,4 @@
+![.NET Core](https://github.com/ByteJunk/SadTacToe/workflows/.NET%20Core/badge.svg?branch=master)
 # SadTacToe
 Um simples jogo do galo em C# para tirar a ferrugem dos dedos.
 
