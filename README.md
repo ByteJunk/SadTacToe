@@ -2,6 +2,8 @@
 # SadTacToe
 Um simples jogo do galo em C# para tirar a ferrugem dos dedos.
 
+![Screenshot](https://i.imgur.com/9RVzQ4z.png)
+
 Este projeto serve também para ganhar alguma experiência com a [SadConsole](https://sadconsole.com/), que parece ser um projeto bastante interessante.
 
 # Como jogar
