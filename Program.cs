@@ -111,6 +111,16 @@ namespace SadTacToe
         /// </summary>
         static void Init()
         {
+            // No início de cada partida, invertemos a ordem dos jogadores
+            jogadorInicial = !jogadorInicial;
+
+            // E aqui definimos, com base no anterior, se é o jogador1 a jogar agora
+            jogador1 = jogadorInicial;
+
+            // Estamos a começar um jogo
+            GameComplete = false;
+
+            // Daqui para baixo vamos tratar de gráficos
             // Preparar umm tipo de letra mais giro (quadrangular) e GRANDE!
             var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
             var fontVezes1 = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
@@ -120,14 +130,6 @@ namespace SadTacToe
             var console = new Console(Width, Height);
             console.Font = fontVezes1;
             SadConsole.Global.CurrentScreen = console;
-
-
-
-
-            for(int i = 0; i < Width; i+=10)
-            {
-                console.Print(i, Height - 1, "0123456789");
-            }
 
             // Preparar a consola que contém o nosso tabuleiro
             gameConsole = new Console(7, 7);
@@ -153,15 +155,6 @@ namespace SadTacToe
             cursor.Font = fontVezes4;
             cursor.Animation.CurrentFrame[0].Glyph = '_';
             console.Children.Add(cursor);
-
-            // No início de cada partida, invertemos a ordem dos jogadores
-            jogadorInicial = !jogadorInicial;
-
-            // E aqui definimos, com base no anterior, se é o jogador1 a jogar agora
-            jogador1 = jogadorInicial;
-
-            // Estamos a começar um jogo
-            GameComplete = false;
         }
 
         /// <summary>
@@ -212,6 +205,9 @@ namespace SadTacToe
             scoreBoard.Print(4 - pontosJogador1.ToString().Length, 10, pontosJogador1.ToString());
             scoreBoard.Print(5, 10, "-");
             scoreBoard.Print(7, 10, pontosJogador2.ToString());
+            for (int i = 0; i < 11; i++) scoreBoard.SetGlyph(i, 12, 210);
+            scoreBoard.Print(0, 14, "Agora joga:");
+            scoreBoard.Print(1, 15, jogador1 ? "Jogador 1" : "Jogador 2");
         }
 
         /// <summary>
@@ -310,6 +306,7 @@ namespace SadTacToe
                         pontosJogador1 += 1;
                         // Vamos mostrar a mensagem de vitória
                         MensagemFim("O jogador 1 venceu!");
+                        return;
                     }
                     else
                     {
@@ -317,6 +314,7 @@ namespace SadTacToe
                         pontosJogador2 += 1;
                         // Vamos mostrar a mensagem de vitória
                         MensagemFim("O jogador 2 venceu!");
+                        return;
                     }
                 }
             }
@@ -338,17 +336,25 @@ namespace SadTacToe
             // Vamos marcar o jogo como tendo sido concluído
             GameComplete = true;
 
-            // Preparar e mostrar à mensagem de fim
-            var MsgFimConsole = new Console(12, 12);
-            MsgFimConsole.Position = new Point(2, 2);
+            // Preparar e mostrar a mensagem de fim
             var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
-            MsgFimConsole.Font = fontMaster.GetFont(SadConsole.Font.FontSizes.Two);
-            MsgFimConsole.Print(1, 1, msg);
+            var fontVezes2 = fontMaster.GetFont(SadConsole.Font.FontSizes.Two);
+            var fontVezes1 = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
 
+            var MsgFimConsole = new Console(16, 5);
+            MsgFimConsole.Position = new Point(2, 2);
+            
+            for(int i = 0; i < MsgFimConsole.Width; i++) MsgFimConsole.Print(i, 0, "-");
+            for(int i = 0; i < MsgFimConsole.Width; i++) MsgFimConsole.Print(i, 3, "-");
+
+            MsgFimConsole.Font = fontVezes2;
+            MsgFimConsole.Cursor.Move(new Point(0, 1)).Print(msg);
+            
             // Vamos questionar os jogadores se querem jogar outra vez
-            var MsgFimConsole2 = new Console(24, 6);
-            MsgFimConsole2.Position = new Point(2, 6);
-            MsgFimConsole2.Font = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
+            var MsgFimConsole2 = new Console(32, 2);
+            MsgFimConsole2.Font = fontVezes1;
+            MsgFimConsole2.Position = new Point(4, 10);
+            
             MsgFimConsole2.Print(0, 1, "Jogar novamente? Y/N");
             MsgFimConsole.Children.Add(MsgFimConsole2);
 
