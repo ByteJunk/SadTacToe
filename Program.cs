@@ -193,6 +193,10 @@ namespace SadTacToe
             for (int i = 0; i < 11; i++) scoreBoard.SetGlyph(i, 12, 210);
             scoreBoard.Print(0, 14, "Agora joga:");
             scoreBoard.Print(1, 15, quemJoga == Jogador.Humano ? "Jogador 1" : "Jogador 2");
+
+            scoreBoard.Print(0, 25, "Tragedia by");
+            scoreBoard.Print(0, 26, "Joao Ornelas");
+            scoreBoard.SetGlyph(5, 27, 2);
         }
 
         /// <summary>
@@ -206,12 +210,12 @@ namespace SadTacToe
             {
                 if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Y))
                 {
-                    System.Console.WriteLine("Inicializar");
+                    System.Diagnostics.Debug.WriteLine("Inicializar");
                     Init();
                 }
                 if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.N))
                 {
-                    System.Console.WriteLine("Sair");
+                    System.Diagnostics.Debug.WriteLine("Sair");
                     Quit();
                 }
                 // Mesmo que não haja Y/N, vamos sair deste Método, porque não queremos tratar outras teclas.
@@ -221,53 +225,16 @@ namespace SadTacToe
             // Se for a vez do computador, vamos jogar
             if (quemJoga == Jogador.Computador)
             {
-                
-            }
+                int jogada = AI.ProxJogada(board);
 
-            // Vamos mover o cursor por ter sido premida a tecla: Up arrow
-            // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
-            {
-                cursor.Position += new Point(0, -2);
-                if (cursor.Position.Y < 0) cursor.Position += new Point(0, 2);
-            }
-            // Vamos mover o cursor por ter sido premida a tecla: Down arrow
-            // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
-            {
-                cursor.Position += new Point(0, 2);
-                if (cursor.Position.Y > 5) cursor.Position += new Point(0, -2);
-            }
-            // Vamos mover o cursor por ter sido premida a tecla: Left arrow
-            // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
-            {
-                cursor.Position += new Point(-2, 0);
-                if (cursor.Position.X < 0) cursor.Position += new Point(2, 0);
-            }
-            // Vamos mover o cursor por ter sido premida a tecla: Right arrow
-            // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
-            {
-                cursor.Position += new Point(2, 0);
-                if (cursor.Position.X > 5) cursor.Position += new Point(-2, 0);
-            }
-            // A Barra de Espaços insere um caracter, dependendo de quem está a jogar.
-            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space))
-            {
-                // Vamos calcular qual o índice da nossa GameBoard a que corresponde a posição 
-                // atual do cursor de jogo
-                var gameBoardPos = (cursor.Position.X - 1) / 2 + (cursor.Position.Y - 1) / 2 * 3;
-                System.Console.WriteLine($"Space @ {cursor.Position} (posição: {gameBoardPos})");
-
-                if (board.Jogar(quemJoga, gameBoardPos))
+                if (board.Jogar(quemJoga, jogada))
                 {
-                    quemJoga = (Jogador)((int)(quemJoga)*-1);
-                    System.Console.WriteLine("Jogada registada, passada a vez para o outro jogador");
+                    quemJoga = (Jogador)((int)(quemJoga) * -1);
+                    System.Diagnostics.Debug.WriteLine("Jogada registada, passada a vez para o outro jogador");
                 }
                 else
                 {
-                    System.Console.WriteLine("A ignorar: não é possível jogar nesta posição.");
+                    System.Diagnostics.Debug.WriteLine("A ignorar: não é possível jogar nesta posição.");
                 }
 
                 // O tabuleiro pode ter sido alterado, vamos redesenhá-lo
@@ -275,8 +242,66 @@ namespace SadTacToe
 
                 // Se houve um novo movimento, alguém pode ter ganho, ou ter acabado o jogo.
                 Jogador j = board.AvaliarVitoria();
-                
-                if(board.GameOver || j != Jogador.Vazio) DeclararVitoria(j);
+
+                if (board.GameOver || j != Jogador.Vazio) DeclararVitoria(j);
+
+            }
+            else
+            {
+                // Vamos mover o cursor por ter sido premida a tecla: Up arrow
+                // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
+                {
+                    cursor.Position += new Point(0, -2);
+                    if (cursor.Position.Y < 0) cursor.Position += new Point(0, 2);
+                }
+                // Vamos mover o cursor por ter sido premida a tecla: Down arrow
+                // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
+                {
+                    cursor.Position += new Point(0, 2);
+                    if (cursor.Position.Y > 5) cursor.Position += new Point(0, -2);
+                }
+                // Vamos mover o cursor por ter sido premida a tecla: Left arrow
+                // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
+                {
+                    cursor.Position += new Point(-2, 0);
+                    if (cursor.Position.X < 0) cursor.Position += new Point(2, 0);
+                }
+                // Vamos mover o cursor por ter sido premida a tecla: Right arrow
+                // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
+                {
+                    cursor.Position += new Point(2, 0);
+                    if (cursor.Position.X > 5) cursor.Position += new Point(-2, 0);
+                }
+                // A Barra de Espaços insere um caracter, dependendo de quem está a jogar.
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space))
+                {
+                    // Vamos calcular qual o índice da nossa GameBoard a que corresponde a posição 
+                    // atual do cursor de jogo
+                    var gameBoardPos = (cursor.Position.X - 1) / 2 + (cursor.Position.Y - 1) / 2 * 3;
+                    System.Diagnostics.Debug.WriteLine($"Space @ {cursor.Position} (posição: {gameBoardPos})");
+
+                    if (board.Jogar(quemJoga, gameBoardPos))
+                    {
+                        quemJoga = (Jogador)((int)(quemJoga) * -1);
+                        System.Diagnostics.Debug.WriteLine("Jogada registada, passada a vez para o outro jogador");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("A ignorar: não é possível jogar nesta posição.");
+                    }
+
+                    // O tabuleiro pode ter sido alterado, vamos redesenhá-lo
+                    PrintGameConsole();
+
+                    // Se houve um novo movimento, alguém pode ter ganho, ou ter acabado o jogo.
+                    Jogador j = board.AvaliarVitoria();
+
+                    if (board.GameOver || j != Jogador.Vazio) DeclararVitoria(j);
+                }
             }
         }
 
@@ -284,14 +309,14 @@ namespace SadTacToe
         {
             if (j == Jogador.Humano)
             {
-                System.Console.WriteLine("O Humano venceu!");
+                System.Diagnostics.Debug.WriteLine("O Humano venceu!");
                 pontosJogador1 += 1;
                 // Vamos mostrar a mensagem de vitória
                 MensagemFim("O jogador 1 venceu!");
             }
             else if(j == Jogador.Computador)
             {
-                System.Console.WriteLine("O Computador venceu!");
+                System.Diagnostics.Debug.WriteLine("O Computador venceu!");
                 pontosJogador2 += 1;
                 // Vamos mostrar a mensagem de vitória
                 MensagemFim("O jogador 2 venceu!");
@@ -300,7 +325,7 @@ namespace SadTacToe
             // e ninguém venceu então é um empate.
             else
             {
-                System.Console.WriteLine("Empate.");
+                System.Diagnostics.Debug.WriteLine("Empate.");
                 MensagemFim("O jogo acabou empatado.");
             }
         }

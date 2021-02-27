@@ -2,7 +2,7 @@ using System;
 
 namespace SadTacToe
 {
-    class GameBoard
+    public class GameBoard
     {
         private int[] _board;
         public int[] Board { get => _board; private set => _board = value; }
@@ -26,6 +26,12 @@ namespace SadTacToe
         public GameBoard()
         {
             _board = new int[9];
+            _gameOver = false;
+        }
+
+        public GameBoard(int[] board)
+        {
+            _board = board;
             _gameOver = false;
         }
 
