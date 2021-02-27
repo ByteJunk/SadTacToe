@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>SadTacToe.Program</StartupObject>
+    <ApplicationIcon>icon_qlG_icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

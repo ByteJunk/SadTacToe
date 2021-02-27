@@ -225,6 +225,9 @@ namespace SadTacToe
             // Se for a vez do computador, vamos jogar
             if (quemJoga == Jogador.Computador)
             {
+                //O PC é quase instantâneo, não queremos isso. Vamos nanar
+                System.Threading.Thread.Sleep(500);
+
                 int jogada = AI.ProxJogada(board);
 
                 if (board.Jogar(quemJoga, jogada))
