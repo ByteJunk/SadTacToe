@@ -18,7 +18,7 @@ namespace SadTacToe
         /// <summary>
         /// O tabuleiro de jogo. Aqui são guardadas todas as jogadas.
         /// </summary>
-        public static string[] GameBoard;
+        private static GameBoard board;
 
         /// <summary>
         /// O Cursor que permite mover entre os quadrados de jogo.
@@ -36,14 +36,14 @@ namespace SadTacToe
         private static Console scoreBoard;
 
         /// <summary>
-        /// Variável de controlo, se True, é a vez do jogador1, que é o X
+        /// Aqui guardamos quem é a vez de jogar agora
         /// </summary>
-        private static Boolean jogador1;
+        private static Jogador quemJoga;
 
         /// <summary>
-        /// Variável de controlo, se True, é o jogador 1 que começa.
+        /// Aqui guardamos quem foi o primeiro a jogar (para depois trocar)
         /// </summary>
-        private static Boolean jogadorInicial = false;
+        private static Jogador quemComecou = Jogador.Computador;
 
         /// <summary>
         /// Quantos jogos o jogador 1 já ganhou.
@@ -66,20 +66,6 @@ namespace SadTacToe
         /// Com duas linhas de tamanho normal para o fundo, =30.
         /// </summary>
         public const int Height = 28;
-
-        /// <summary>
-        /// Esta variável contém todos os padrões que correspondem a vitória.
-        /// </summary>
-        private static int[][] linhas = new int[][] {
-                new int[] {0, 1, 2},
-                new int[] {3, 4, 5},
-                new int[] {6, 7, 8},
-                new int[] {0, 3, 6},
-                new int[] {1, 4, 7},
-                new int[] {2, 5, 8},
-                new int[] {0, 4, 8},
-                new int[] {2, 4, 6}
-        };
 
         #endregion
 
@@ -112,24 +98,24 @@ namespace SadTacToe
         static void Init()
         {
             // No início de cada partida, invertemos a ordem dos jogadores
-            jogadorInicial = !jogadorInicial;
+            quemComecou = (Jogador)((int)quemComecou * -1);
 
             // E aqui definimos, com base no anterior, se é o jogador1 a jogar agora
-            jogador1 = jogadorInicial;
+            quemJoga = quemComecou;
 
             // Estamos a começar um jogo
             GameComplete = false;
 
             // Daqui para baixo vamos tratar de gráficos
             // Preparar umm tipo de letra mais giro (quadrangular) e GRANDE!
-            var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
-            var fontVezes1 = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
-            var fontVezes4 = fontMaster.GetFont(SadConsole.Font.FontSizes.Four);
+            var fontMaster = Global.LoadFont("font/simplemood.font");
+            var fontVezes1 = fontMaster.GetFont(Font.FontSizes.One);
+            var fontVezes4 = fontMaster.GetFont(Font.FontSizes.Four);
 
             // Criar uma consola "mãe", que vai ser o nosso ecrã
             var console = new Console(Width, Height);
             console.Font = fontVezes1;
-            SadConsole.Global.CurrentScreen = console;
+            Global.CurrentScreen = console;
 
             // Preparar a consola que contém o nosso tabuleiro
             gameConsole = new Console(7, 7);
@@ -142,9 +128,8 @@ namespace SadTacToe
             scoreBoard.Font = fontVezes1;
             console.Children.Add(scoreBoard);
 
-            // Limpar todas as jogadas. O primeiro elemento é o canto superior esquerdo
-            // do quadrado de jogo, e o último o canto inferior direito.
-            GameBoard = new string[] { " ", " ", " ", " ", " ", " ", " ", " ", " " };
+            // Vamos inicializar um novo tabuleiro
+            board = new GameBoard();
 
             // Vamos chamar um Método que desenha a nosso tabuleiro.
             PrintGameConsole();
@@ -164,9 +149,9 @@ namespace SadTacToe
         static void PrintGameConsole()
         {
             // Mostrar os X e O que já tenham sido jogados
-            gameConsole.Print(1, 1, $"{GameBoard[0]} {GameBoard[1]} {GameBoard[2]}");
-            gameConsole.Print(1, 3, $"{GameBoard[3]} {GameBoard[4]} {GameBoard[5]}");
-            gameConsole.Print(1, 5, $"{GameBoard[6]} {GameBoard[7]} {GameBoard[8]}");
+            gameConsole.Print(1, 1, $"{Glifo(board.Board[0])} {Glifo(board.Board[1])} {Glifo(board.Board[2])}");
+            gameConsole.Print(1, 3, $"{Glifo(board.Board[3])} {Glifo(board.Board[4])} {Glifo(board.Board[5])}");
+            gameConsole.Print(1, 5, $"{Glifo(board.Board[6])} {Glifo(board.Board[7])} {Glifo(board.Board[8])}");
             // Linha 1
             gameConsole.SetGlyph(1, 2, 196); // -
             gameConsole.SetGlyph(2, 2, 197); // +
@@ -207,24 +192,24 @@ namespace SadTacToe
             scoreBoard.Print(7, 10, pontosJogador2.ToString());
             for (int i = 0; i < 11; i++) scoreBoard.SetGlyph(i, 12, 210);
             scoreBoard.Print(0, 14, "Agora joga:");
-            scoreBoard.Print(1, 15, jogador1 ? "Jogador 1" : "Jogador 2");
+            scoreBoard.Print(1, 15, quemJoga == Jogador.Humano ? "Jogador 1" : "Jogador 2");
         }
 
         /// <summary>
         /// Método chamado a cada frame. Vamos tratar de input no teclado.
         /// </summary>
-        /// <param name="time">Tempo decorrido desde o último frame. No nosso caso não importa.</param>
+        /// <param name="time">Tempo decorrido desde o último frame. No nosso cazso não importa.</param>
         static void Update(GameTime time)
         {
             // Se o jogo já acabou, só olhamos para duas teclas: Y e N
             if (GameComplete)
             {
-                if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Y))
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Y))
                 {
                     System.Console.WriteLine("Inicializar");
                     Init();
                 }
-                if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.N))
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.N))
                 {
                     System.Console.WriteLine("Sair");
                     Quit();
@@ -232,95 +217,88 @@ namespace SadTacToe
                 // Mesmo que não haja Y/N, vamos sair deste Método, porque não queremos tratar outras teclas.
                 return;
             }
+
+            // Se for a vez do computador, vamos jogar
+            if (quemJoga == Jogador.Computador)
+            {
+                
+            }
+
             // Vamos mover o cursor por ter sido premida a tecla: Up arrow
             // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
             {
                 cursor.Position += new Point(0, -2);
                 if (cursor.Position.Y < 0) cursor.Position += new Point(0, 2);
             }
             // Vamos mover o cursor por ter sido premida a tecla: Down arrow
             // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
             {
                 cursor.Position += new Point(0, 2);
                 if (cursor.Position.Y > 5) cursor.Position += new Point(0, -2);
             }
             // Vamos mover o cursor por ter sido premida a tecla: Left arrow
             // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
             {
                 cursor.Position += new Point(-2, 0);
                 if (cursor.Position.X < 0) cursor.Position += new Point(2, 0);
             }
             // Vamos mover o cursor por ter sido premida a tecla: Right arrow
             // Alteramos a posição do cursor em 2 caracteres, porque há uma linha pelo meio
-            if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
             {
                 cursor.Position += new Point(2, 0);
                 if (cursor.Position.X > 5) cursor.Position += new Point(-2, 0);
             }
             // A Barra de Espaços insere um caracter, dependendo de quem está a jogar.
-            if (SadConsole.Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space))
+            if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Space))
             {
                 // Vamos calcular qual o índice da nossa GameBoard a que corresponde a posição 
                 // atual do cursor de jogo
                 var gameBoardPos = (cursor.Position.X - 1) / 2 + (cursor.Position.Y - 1) / 2 * 3;
                 System.Console.WriteLine($"Space @ {cursor.Position} (posição: {gameBoardPos})");
 
-                // Só guardamos o input se esta posição ainda não tiver uma jogada (está em branco)
-                if (GameBoard[gameBoardPos] == " ")
+                if (board.Jogar(quemJoga, gameBoardPos))
                 {
-                    // Se for a vez do jogador1, colocamos um X, senão um O
-                    GameBoard[gameBoardPos] = jogador1 ? "X" : "O";
-                    // ...e passamos a vez ao outro jogador
-                    jogador1 = !jogador1;
+                    quemJoga = (Jogador)((int)(quemJoga)*-1);
+                    System.Console.WriteLine("Jogada registada, passada a vez para o outro jogador");
                 }
                 else
                 {
-                    System.Console.WriteLine("A ignorar: já ocupado.");
+                    System.Console.WriteLine("A ignorar: não é possível jogar nesta posição.");
                 }
 
                 // O tabuleiro pode ter sido alterado, vamos redesenhá-lo
                 PrintGameConsole();
 
                 // Se houve um novo movimento, alguém pode ter ganho, ou ter acabado o jogo.
-                // Vamos confirmar, e AvaliarVitoria()
-                AvaliarVitoria();
+                Jogador j = board.AvaliarVitoria();
+                
+                if(board.GameOver || j != Jogador.Vazio) DeclararVitoria(j);
             }
         }
 
-        private static void AvaliarVitoria()
+        private static void DeclararVitoria(Jogador j)
         {
-            // Vamos ver, para cada linha possível, se existem 3 caracteres iguais
-            foreach (int[] linha in linhas)
+            if (j == Jogador.Humano)
             {
-                if (GameBoard[linha[0]] == GameBoard[linha[1]]
-                    && GameBoard[linha[0]] == GameBoard[linha[2]]
-                    && GameBoard[linha[0]] != " ")
-                {
-                    // Há 3 caracteres iguais numa linha, vamos ver quem ganhou
-                    if (GameBoard[linha[0]] == "X")
-                    {
-                        System.Console.WriteLine("O jogador 1 venceu!");
-                        pontosJogador1 += 1;
-                        // Vamos mostrar a mensagem de vitória
-                        MensagemFim("O jogador 1 venceu!");
-                        return;
-                    }
-                    else
-                    {
-                        System.Console.WriteLine("O jogador 2 venceu!");
-                        pontosJogador2 += 1;
-                        // Vamos mostrar a mensagem de vitória
-                        MensagemFim("O jogador 2 venceu!");
-                        return;
-                    }
-                }
+                System.Console.WriteLine("O Humano venceu!");
+                pontosJogador1 += 1;
+                // Vamos mostrar a mensagem de vitória
+                MensagemFim("O jogador 1 venceu!");
+            }
+            else if(j == Jogador.Computador)
+            {
+                System.Console.WriteLine("O Computador venceu!");
+                pontosJogador2 += 1;
+                // Vamos mostrar a mensagem de vitória
+                MensagemFim("O jogador 2 venceu!");
             }
             // Se já não houver espaços em branco para jogar no tabuleiro
             // e ninguém venceu então é um empate.
-            if (!GameBoard.Contains(" "))
+            else
             {
                 System.Console.WriteLine("Empate.");
                 MensagemFim("O jogo acabou empatado.");
@@ -337,9 +315,9 @@ namespace SadTacToe
             GameComplete = true;
 
             // Preparar e mostrar a mensagem de fim
-            var fontMaster = SadConsole.Global.LoadFont("font/SomethingBoxy.font");
-            var fontVezes2 = fontMaster.GetFont(SadConsole.Font.FontSizes.Two);
-            var fontVezes1 = fontMaster.GetFont(SadConsole.Font.FontSizes.One);
+            var fontMaster = Global.LoadFont("font/SomethingBoxy.font");
+            var fontVezes2 = fontMaster.GetFont(Font.FontSizes.Two);
+            var fontVezes1 = fontMaster.GetFont(Font.FontSizes.One);
 
             var MsgFimConsole = new Console(16, 5);
             MsgFimConsole.Position = new Point(2, 2);
@@ -359,12 +337,45 @@ namespace SadTacToe
             MsgFimConsole.Children.Add(MsgFimConsole2);
 
             // Definir este ecrã que acabamos de criar como ativo.
-            SadConsole.Global.CurrentScreen = MsgFimConsole;
+            Global.CurrentScreen = MsgFimConsole;
         }
 
+        private static string Glifo(int i)
+        {
+            if(i > 0) return "O";
+            if(i < 0) return "X";
+            return " ";
+        }
         /// <summary>
         /// Sair do jogo.
         /// </summary>
+
+        private static int Minimax(GameBoard t, Jogador j)
+        {
+            if (t.AvaliarVitoria() != Jogador.Vazio | t.GameOver)
+                return (int)t.AvaliarVitoria();
+
+            int jogada = -1;
+            int score = -2;
+
+            for(int i = 0; i < 9; i++)
+            {
+                if( (Jogador)t.Board[i] == Jogador.Vazio) 
+                {
+                    var novoT = t;
+                    novoT.Jogar(j, i);
+                    var pontosJogada = -Minimax(novoT, (Jogador)((int)j*-1));
+                    if(pontosJogada > score) {
+                        score = pontosJogada;
+                        jogada = i;
+                    }
+                }
+            }
+            if(jogada == -1)
+                return 0;
+            
+            return score;
+        }
         private static void Quit()
         {
             SadConsole.Game.Instance.Exit();

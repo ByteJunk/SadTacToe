@@ -15,8 +15,10 @@
     <PackageReference Include="SadConsole" Version="8.99.1" />
   </ItemGroup>
 
-<ItemGroup>
-  <None Update="font\font.png" CopyToOutputDirectory="PreserveNewest" />
-  <None Update="font\SomethingBoxy.font" CopyToOutputDirectory="PreserveNewest" />
-</ItemGroup>
+  <ItemGroup>
+    <None Update="font\font.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="font\simplemood.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="font\SomethingBoxy.font" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="font\simplemood.font" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

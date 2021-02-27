@@ -1,0 +1,17 @@
+ SadTacToe
+###########
+ Jogador 1 
+    VS. 
+ Jogador 2
+   1 - 1
+###########
+É a vez do:
+Agora joga:
+
+
+
+###############
+O JOGADOR 1 
+VENCEU!
+O JOGO TERMINOU 
+EMPATADO
