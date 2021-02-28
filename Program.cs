@@ -67,6 +67,8 @@ namespace SadTacToe
         /// </summary>
         public const int Height = 28;
 
+        private static DificuldadeAI dificuldade = DificuldadeAI.Easy;
+
         #endregion
 
         #region Região onde temos os nossos Métodos
@@ -195,8 +197,16 @@ namespace SadTacToe
             scoreBoard.Print(1, 15, quemJoga == Jogador.Humano ? "Jogador 1" : "Jogador 2");
 
             scoreBoard.Print(0, 25, "Tragedia by");
-            scoreBoard.Print(0, 26, "Joao Ornelas");
-            scoreBoard.SetGlyph(5, 27, 2);
+            if (dificuldade == DificuldadeAI.Easy)
+            {
+                scoreBoard.Print(0, 26, "Joao Ornelas");
+                scoreBoard.SetGlyph(5, 27, 2);
+            }
+            else
+            {
+                scoreBoard.Print(0, 26, "  Belzebub  ");
+                scoreBoard.SetGlyph(5, 27, 1);
+            }
         }
 
         /// <summary>
@@ -226,9 +236,14 @@ namespace SadTacToe
             if (quemJoga == Jogador.Computador)
             {
                 //O PC é quase instantâneo, não queremos isso. Vamos nanar
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(250);
 
-                int jogada = AI.ProxJogada(board);
+                int jogada;
+                if (dificuldade == DificuldadeAI.Easy)
+                    jogada = AI.ProxJogada(board);
+                else
+                    jogada = AI2.ProxJogada(board);
+
 
                 if (board.Jogar(quemJoga, jogada))
                 {
@@ -305,6 +320,13 @@ namespace SadTacToe
 
                     if (board.GameOver || j != Jogador.Vazio) DeclararVitoria(j);
                 }
+                // Modo picante!!!
+                if (Global.KeyboardState.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Tab))
+                {
+                    dificuldade = (dificuldade == DificuldadeAI.Easy) ? DificuldadeAI.Hard : DificuldadeAI.Easy;
+                    // Tabuleiro acabou de mudar, muahaha >:]
+                    PrintGameConsole();
+                }
             }
         }
 
@@ -377,37 +399,17 @@ namespace SadTacToe
         /// <summary>
         /// Sair do jogo.
         /// </summary>
-
-        private static int Minimax(GameBoard t, Jogador j)
-        {
-            if (t.AvaliarVitoria() != Jogador.Vazio | t.GameOver)
-                return (int)t.AvaliarVitoria();
-
-            int jogada = -1;
-            int score = -2;
-
-            for(int i = 0; i < 9; i++)
-            {
-                if( (Jogador)t.Board[i] == Jogador.Vazio) 
-                {
-                    var novoT = t;
-                    novoT.Jogar(j, i);
-                    var pontosJogada = -Minimax(novoT, (Jogador)((int)j*-1));
-                    if(pontosJogada > score) {
-                        score = pontosJogada;
-                        jogada = i;
-                    }
-                }
-            }
-            if(jogada == -1)
-                return 0;
-            
-            return score;
-        }
         private static void Quit()
         {
             SadConsole.Game.Instance.Exit();
         }
+
+        public enum DificuldadeAI
+        {
+            Easy,
+            Hard
+        }
+
         #endregion
     }
 }
